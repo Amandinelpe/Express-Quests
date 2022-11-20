@@ -28,18 +28,15 @@ const movies = [
 ];
 
 const getMovies = (req, res) => {
-  res.json(movies);
-  const getMovies = (req, res) => {
-    database
-      .query("select * from movies")
-      .then(([movies]) => {
-        res.json(movies);
-      })
-      .catch((err) => {
-        console.error(err);
-        res.status(500).send("Error retrieving data from database");
-      });
-  };
+  database
+    .query("select * from movies")
+    .then(([movies]) => {
+      res.json(movies);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error retrieving data from database");
+    });
 };
 
 const getMovieById = (req, res) => {
@@ -102,18 +99,32 @@ const updateMovie = (req, res) => {
     });
 };
 
+const deleteMovie = (req, res) => {
+  const id = parseInt(req.params.id);
+
+  database
+
+    .query("delete from movies where id = ?", [id])
+
+    .then(([result]) => {
+      if (result.affectedRows === 0) {
+        res.status(404).send("Not Found");
+      } else {
+        res.sendStatus(204);
+      }
+    })
+
+    .catch((err) => {
+      console.error(err);
+
+      res.status(500).send("Error deleting the movie");
+    });
+};
+
 module.exports = {
   getMovies,
   getMovieById,
   postMovie, // don't forget to export your function ;)
   updateMovie,
+  deleteMovie,
 };
-
-
-
-
-
-
-
-
-

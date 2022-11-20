@@ -41,12 +41,12 @@ const getUserById = (req, res) => {
 };
 
 const postUsers = (req, res) => {
-  const { id, firstName, lastName, email, city, language } = req.body;
+  const { firstName, lastName, email, city, language } = req.body;
 
   database
     .query(
-      "INSERT INTO users(id, firstName, lastName, email, city, language) VALUES (?, ?, ?, ?, ?)",
-      [id, firstName, lastName, email, city, language]
+      "INSERT INTO users( firstName, lastName, email, city, language) VALUES (?, ?, ?, ?, ?)",
+      [firstName, lastName, email, city, language]
     )
     .then(([result]) => {
       res.location(`/api/users/${result.insertId}`).sendStatus(201);
@@ -65,9 +65,9 @@ const updateUsers = (req, res) => {
   database
 
     .query(
-      "update users set firstName = ?, lastName = ?, city = ?, language = ?",
+      "update users set firstName = ?, lastName = ?, city = ?, language = ? where id = ?",
 
-      [firstName, lastName, city, language]
+      [firstName, lastName, city, language, id]
     )
 
     .then(([result]) => {
@@ -85,9 +85,32 @@ const updateUsers = (req, res) => {
     });
 };
 
+const deleteUsers = (req, res) => {
+  const id = parseInt(req.params.id);
+
+  database
+
+    .query("delete from users where id = ?", [id])
+
+    .then(([result]) => {
+      if (result.affectedRows === 0) {
+        res.status(404).send("Not Found");
+      } else {
+        res.sendStatus(204);
+      }
+    })
+
+    .catch((err) => {
+      console.error(err);
+
+      res.status(500).send("Error deleting the user");
+    });
+};
+
 module.exports = {
   getUsers,
   getUserById,
   postUsers,
   updateUsers,
+  deleteUsers,
 };
