@@ -66,12 +66,13 @@ const getUserById = (req, res) => {
 };
 
 const postUsers = (req, res) => {
-  const { firstName, lastName, email, city, language } = req.body;
+  const { firstName, lastName, email, city, language, hashedPassword } =
+    req.body;
 
   database
     .query(
-      "INSERT INTO users( firstName, lastName, email, city, language) VALUES (?, ?, ?, ?, ?)",
-      [firstName, lastName, email, city, language]
+      "INSERT INTO users( firstName, lastName, email, city, language, hashedPassword) VALUES (?, ?, ?, ?, ?, ?)",
+      [firstName, lastName, email, city, language, hashedPassword]
     )
     .then(([result]) => {
       res.location(`/api/users/${result.insertId}`).sendStatus(201);
@@ -92,7 +93,7 @@ const updateUsers = (req, res) => {
     .query(
       "update users set firstName = ?, lastName = ?, city = ?, language = ? where id = ?",
 
-      [firstName, lastName, city, language, id]
+      [firstName, lastName, email, city, language, id]
     )
 
     .then(([result]) => {
