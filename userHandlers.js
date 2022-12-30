@@ -12,7 +12,7 @@ const database = mysql.createPool({
 
 const getUsers = (req, res) => {
   const initialSql =
-    "select firstName, lastName, email, city, language  from users";
+    "select id, firstName, lastName, email, city, language from users";
   const where = [];
 
   if (req.query.language != null) {
@@ -90,14 +90,14 @@ const postUsers = (req, res) => {
 const updateUsers = (req, res) => {
   const id = parseInt(req.params.id);
 
-  const { firstName, lastName, email, city, language } = req.body;
+  const { firstName, lastName, city, language } = req.body;
 
   database
 
     .query(
       "update users set firstName = ?, lastName = ?, city = ?, language = ? where id = ?",
 
-      [firstName, lastName, email, city, language, id]
+      [firstName, lastName, city, language, id]
     )
 
     .then(([result]) => {
@@ -137,10 +137,33 @@ const deleteUsers = (req, res) => {
     });
 };
 
+const getUserByEmailWithPasswordAndPassToNext = (req, res, next) => {
+  const { email } = req.body;
+
+  database
+    .query("select * from users where email = ?", [email])
+    .then(([users]) => {
+      if (users[0] != null) {
+        req.user = users[0];
+
+        next();
+      } else {
+        res.sendStatus(401);
+      }
+    })
+
+    .catch((err) => {
+      console.error(err);
+
+      res.status(500).send("Error retrieving data from database");
+    });
+};
+
 module.exports = {
   getUsers,
   getUserById,
   postUsers,
   updateUsers,
   deleteUsers,
+  getUserByEmailWithPasswordAndPassToNext,
 };
